@@ -70,7 +70,7 @@ probe-rs complete install
 
 See also:
 
-- <https://docs.espressif.com/projects/rust/book/writing-your-own-application/generate-project/esp-generate.html>
+- <https://docs.espressif.com/projects/rust/book/getting-started/using-esp-generate.html>
 
 ```bash
 cargo install esp-generate --locked
