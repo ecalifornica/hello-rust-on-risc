@@ -56,6 +56,9 @@ cargo install espflash cargo-espflash --locked
 
 ```bash
 # Instead of sudo, add rules to /etc/udev/rules.d/
+# https://probe.rs/files/69-probe-rs.rules
+# See docs/probe-rs-udev-rules.md
+sudo sed -i 's/, GROUP="plugdev"//g' /etc/udev/rules.d/69-probe-rs.rules
 udevadm control --reload
 ```
 
