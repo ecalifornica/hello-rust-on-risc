@@ -7,6 +7,7 @@
 )]
 
 use esp_hal::clock::CpuClock;
+use esp_hal::gpio;
 use esp_hal::main;
 use esp_hal::time::{Duration, Instant};
 
@@ -23,10 +24,22 @@ esp_bootloader_esp_idf::esp_app_desc!();
 fn main() -> ! {
     // generator version: 1.0.1
 
+    // Initialize chip with max CPU clock speed
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
-    let _peripherals = esp_hal::init(config);
+    // Take ownership of hardware peripherals
+    let peripherals = esp_hal::init(config);
 
+    // Configure GPIO pin 15 as an output pin, starting LOW (LED off)
+    let mut led = gpio::Output::new(
+        peripherals.GPIO15,
+        gpio::Level::Low,
+        gpio::OutputConfig::default(),
+    );
+
+    // Main loop
     loop {
+        led.toggle();
+        // Busy-wait
         let delay_start = Instant::now();
         while delay_start.elapsed() < Duration::from_millis(500) {}
     }
