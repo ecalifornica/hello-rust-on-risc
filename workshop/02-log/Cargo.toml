@@ -15,6 +15,7 @@ esp-hal = { version = "1.0.0", features = ["esp32c6"] }
 esp-bootloader-esp-idf = { version = "0.4.0", features = ["esp32c6"] }
 
 critical-section = "1.2.0"
+rtt-target       = "0.6.2"
 
 
 [profile.dev]
