@@ -447,6 +447,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ex-01-blink"
+version = "0.1.0"
+dependencies = [
+ "critical-section",
+ "esp-bootloader-esp-idf",
+ "esp-hal",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
