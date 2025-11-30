@@ -16,6 +16,7 @@ defmt                  = "1.0.1"
 esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32c6"] }
 
 critical-section = "1.2.0"
+panic-rtt-target = { version = "0.2.0", features = ["defmt"] }
 rtt-target       = { version = "0.6.2", features = ["defmt"] }
 
 

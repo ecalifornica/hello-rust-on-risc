@@ -636,6 +636,7 @@ dependencies = [
  "defmt 1.0.1",
  "esp-bootloader-esp-idf",
  "esp-hal",
+ "panic-rtt-target",
  "rtt-target",
 ]
 
@@ -732,6 +733,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ff76201f031d8863c38aa7f905eca4f53abbfa15f609db4277d44cd8938f33fe"
 dependencies = [
  "memchr",
+]
+
+[[package]]
+name = "panic-rtt-target"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9a8116ffce1f89818647b84fba66d16cfdf3c0bee3c9320e606588d3e7415ce7"
+dependencies = [
+ "critical-section",
+ "defmt 0.3.100",
+ "portable-atomic",
+ "rtt-target",
 ]
 
 [[package]]

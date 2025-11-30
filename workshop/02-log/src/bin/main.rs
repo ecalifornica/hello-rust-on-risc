@@ -14,10 +14,7 @@ use esp_hal::{
 
 use defmt::info;
 
-#[panic_handler]
-fn panic(_: &core::panic::PanicInfo) -> ! {
-    loop {}
-}
+use panic_rtt_target as _;
 
 
 // This creates a default app-descriptor required by the esp-idf bootloader.
