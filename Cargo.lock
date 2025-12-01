@@ -641,6 +641,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "hello-test"
+version = "0.1.0"
+dependencies = [
+ "critical-section",
+ "defmt 1.0.1",
+ "esp-bootloader-esp-idf",
+ "esp-hal",
+ "panic-rtt-target",
+ "rtt-target",
+]
+
+[[package]]
 name = "ident_case"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
