@@ -7,6 +7,14 @@ version      = "0.1.0"
 [[bin]]
 name = "hello-test"
 path = "./src/bin/main.rs"
+test = false
+
+[[test]]
+harness = false
+name    = "hello_test"
+
+[lib]
+test = false
 
 [dependencies]
 esp-hal = { version = "1.0.0", features = ["defmt", "esp32c6"] }
@@ -19,6 +27,8 @@ critical-section = "1.2.0"
 panic-rtt-target = { version = "0.2.0", features = ["defmt"] }
 rtt-target       = { version = "0.6.2", features = ["defmt"] }
 
+[dev-dependencies]
+embedded-test = { version = "0.7.0", features = ["defmt"] }
 
 [profile.dev]
 # Rust debug is too slow.
