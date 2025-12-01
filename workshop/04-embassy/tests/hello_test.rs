@@ -8,22 +8,27 @@
 esp_bootloader_esp_idf::esp_app_desc!();
 
 #[cfg(test)]
-#[embedded_test::tests]
+#[embedded_test::tests(executor = esp_rtos::embassy::Executor::new())]
 mod tests {
     use defmt::assert_eq;
-    use esp_hal as _;
 
     #[init]
     fn init() {
-        let _ = esp_hal::init(esp_hal::Config::default());
+        let peripherals = esp_hal::init(esp_hal::Config::default());
+
+        let timg1 = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG1);
+        let sw_interrupt =
+            esp_hal::interrupt::software::SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+        esp_rtos::start(timg1.timer0, sw_interrupt.software_interrupt0);
 
         rtt_target::rtt_init_defmt!();
     }
 
     #[test]
-    fn hello_test() {
+    async fn hello_test() {
         defmt::info!("Running test!");
 
+        embassy_time::Timer::after(embassy_time::Duration::from_millis(100)).await;
         assert_eq!(1 + 1, 2);
     }
 }
