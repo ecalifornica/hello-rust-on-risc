@@ -36,15 +36,19 @@ fn main() -> ! {
 
     info!("System Ready. Starting blocking loop...");
 
+    let mut button_state: bool = false;
+
     loop {
         // --- STEP A: Read Inputs ---
         // Check if the button is pressed (Logic Low)
-        if button.is_low() {
+        if button.is_low() && !button_state {
             info!("BUTTON PRESSED!");
             led2.set_high();
-        } else {
-            info!("Button is released");
+            button_state = true;
+        } else if button.is_high() && button_state {
+            // info!("Button is released");
             led2.set_low();
+            button_state = false;
         }
 
         // --- STEP B: Update Outputs ---
