@@ -8,28 +8,58 @@
 
 use defmt::info;
 use esp_hal::clock::CpuClock;
+use esp_hal::gpio::{Input, InputConfig, Level, Output, OutputConfig, Pull};
 use esp_hal::main;
 use esp_hal::time::{Duration, Instant};
 use panic_rtt_target as _;
 
-// This creates a default app-descriptor required by the esp-idf bootloader.
-// For more information see: <https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/app_image_format.html#application-description>
+// Standard app descriptor for bootloader
 esp_bootloader_esp_idf::esp_app_desc!();
 
 #[main]
 fn main() -> ! {
-    // generator version: 1.0.1
-
+    // 1. Initialize RTT logging
     rtt_target::rtt_init_defmt!();
 
+    // 2. Configure System
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
-    let _peripherals = esp_hal::init(config);
+    let peripherals = esp_hal::init(config);
+
+    // 3. Configure LED (Output)
+    let mut led = Output::new(peripherals.GPIO15, Level::Low, OutputConfig::default());
+
+    let mut led2 = Output::new(peripherals.GPIO8, Level::Low, OutputConfig::default());
+
+    // 4. Configure Button (Input)
+    let button_config = InputConfig::default().with_pull(Pull::Up);
+    let button = Input::new(peripherals.GPIO7, button_config);
+
+    info!("System Ready. Starting blocking loop...");
 
     loop {
-        info!("Hello world!");
-        let delay_start = Instant::now();
-        while delay_start.elapsed() < Duration::from_millis(500) {}
-    }
+        // --- STEP A: Read Inputs ---
+        // Check if the button is pressed (Logic Low)
+        if button.is_low() {
+            info!("BUTTON PRESSED!");
+            led2.set_high();
+        } else {
+            info!("Button is released");
+            led2.set_low();
+        }
 
-    // for inspiration have a look at the examples at https://github.com/esp-rs/esp-hal/tree/esp-hal-v1.0.0/examples/src/bin
+        // --- STEP B: Update Outputs ---
+        led.toggle();
+
+        // --- STEP C: The Blocking Delay ---
+        // We pause execution for 2 seconds.
+        // PROBLEM: The CPU is stuck in this 'while' loop.
+        // Try pressing the button NOW. It will be ignored!
+        info!("Blocking for 2 seconds...");
+
+        let delay_start = Instant::now();
+        while delay_start.elapsed() < Duration::from_secs(2) {
+            // CPU is busy checking the time.
+            // It cannot check the button here.
+        }
+    }
 }
