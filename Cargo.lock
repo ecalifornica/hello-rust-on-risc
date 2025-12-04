@@ -887,6 +887,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "hello-sensors"
+version = "0.1.0"
+dependencies = [
+ "critical-section",
+ "defmt 1.0.1",
+ "embassy-executor",
+ "embassy-time",
+ "embedded-test",
+ "esp-bootloader-esp-idf",
+ "esp-hal",
+ "esp-rtos",
+ "panic-rtt-target",
+ "rtt-target",
+ "static_cell",
+]
+
+[[package]]
 name = "hello-test"
 version = "0.1.0"
 dependencies = [
