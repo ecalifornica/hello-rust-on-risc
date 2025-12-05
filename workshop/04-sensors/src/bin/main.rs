@@ -27,6 +27,7 @@ esp_bootloader_esp_idf::esp_app_desc!();
 
 // No-op because Embassy is single-threaded
 type I2cBus = Mutex<NoopRawMutex, I2c<'static, Async>>;
+// Bus inside static cell is initialized at runtime, after peripherals
 static I2C_BUS: StaticCell<I2cBus> = StaticCell::new();
 
 const MAX17048_ADDR: u8 = 0x36;
