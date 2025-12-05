@@ -21,6 +21,8 @@ use esp_hal::timer::timg::TimerGroup;
 use panic_rtt_target as _;
 use static_cell::StaticCell;
 
+extern crate alloc;
+
 // This creates a default app-descriptor required by the esp-idf bootloader.
 // For more information see: <https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/app_image_format.html#application-description>
 esp_bootloader_esp_idf::esp_app_desc!();
@@ -103,6 +105,8 @@ async fn main(spawner: Spawner) -> ! {
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
 
+    esp_alloc::heap_allocator!(#[esp_hal::ram(reclaimed)] size: 65536);
+
     let timg0 = TimerGroup::new(peripherals.TIMG0);
     let sw_interrupt =
         esp_hal::interrupt::software::SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
@@ -134,6 +138,13 @@ async fn main(spawner: Spawner) -> ! {
 
     // delay for power to stabilize
     Timer::after(Duration::from_millis(10)).await;
+
+    // Radio
+
+    let radio_init = esp_radio::init().expect("Failed to initialize Wi-Fi/BLE controller");
+    let (mut _wifi_controller, _interfaces) =
+        esp_radio::wifi::new(&radio_init, peripherals.WIFI, Default::default())
+            .expect("Failed to initialize Wi-Fi controller");
 
     // Spawn tasks
     spawner.spawn(blink(led2, button)).unwrap();
