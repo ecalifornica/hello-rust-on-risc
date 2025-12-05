@@ -1,32 +1,36 @@
 # Hello Rust
 
-Published: 2025-09
+Published: 2025-09, Updated: 2025-12
 
 ## Introduction
 
 Learning Rust by running it on RISC-V.
 
-[image: project]
+![esp32c6](/docs/images/hello_world.jpg)
 
 2025 is a great time to give embedded Rust on RISC-V a try.
 
-The Espressif `esp32c6` is well supported (Espressif hired a Rust team), the hardware abstraction layer [esp-hal](https://github.com/esp-rs/esp-hal) is about to go 1.0.
+The Espressif `esp32c6` is well supported (Espressif hired a Rust team), the hardware abstraction layer [esp-hal](https://github.com/esp-rs/esp-hal) is 1.0.
 
 See Links section for links to good web logs and vlogs.
 
 ---
 
-## Hello
+## Hello World Workshop
 
-### Bill of Materials
+### 0: Setup
+
+- Goals:
+  - `cargo run`
+
+#### Bill of Materials
 
 - [esp32c6 Adafruit Feather](https://www.adafruit.com/product/5933)
 - [BME688](https://www.adafruit.com/product/5046)
 - qwiic cables
 - battery
-- case
 
-### Install toolchain
+#### Install toolchain
 
 ```bash
 # dialout (btw)
@@ -50,7 +54,7 @@ cargo install espflash cargo-espflash --locked
     - [components](https://rust-lang.github.io/rustup/concepts/components.html)
       - [toolchains](https://rust-lang.github.io/rustup/concepts/toolchains.html)
 
-### Set up debug probe
+#### Set up debug probe
 
 [probe-rs](https://probe.rs/docs/getting-started/probe-setup)
 
@@ -64,7 +68,7 @@ cargo install probe-rs-tools --locked
 probe-rs complete install
 ```
 
-### Generate project from template
+#### Generate project from template
 
 <https://github.com/esp-rs/esp-generate>
 
@@ -79,29 +83,15 @@ cargo install esp-generate --locked
 ```bash
 esp-generate \
   --chip esp32c6 \
-  -o unstable-hal \
-  -o probe-rs \
-  -o defmt \
-  -o panic-rtt-target \
   --headless \
-  hello-rust
+  hello-world
 ```
 
-unstable HAL: nightly
+### 1 Hello Blink
 
-`probe-rs`: logs
-
-defmt: logs
-
-panic-rtt-target: logs
-
-headless: use tui config
-
-### Blink the on-board LED
-
-```rust
-// # TODO: show code
-```
+- Goals:
+  - blink
+  - print hello world
 
 ```bash
 # build and flash
@@ -117,92 +107,22 @@ cargo run
 probe-rs attach --chip esp32c6 target/riscv32imac-unknown-none-elf/debug/hello-rust
 ```
 
----
+### 2 Read Inputs
 
-## Beyond Hello
-
-### Async Blink, with the Embassy Framework
-
-```bash
-esp-generate \
-  --chip esp32c6 \
-  -o unstable-hal \
-  -o alloc \
-  -o probe-rs \
-  -o defmt \
-  -o panic-rtt-target \
-  -o embassy \
-  -o wifi \
-  -o ble \
-  --headless \
-  hello-rust
-```
-
-alloc:
-
-embassy:
-
-wifi:
-
-ble:
-
-### Blink the Adafruit Feather Neopixel
-
-Dependency heck. Not so bad with Rust.
-
-Update affected dependencies to point to local path or remote git repo.
-
--A fork of the esp-hal-smartled crate is needed.- This has been updated.
-
-```rust
-// # TODO: show code
-```
-
-[img: hello more blink]
-
----
-
-### Blink the onboard LED and the pixel at the same time
-
-Code diffs:
-
-In main loop. Blocking, sequential.
-
-```rust
-// # TODO: show code
-```
-
-With Embassy async framework. Tick primitive. Asynchronous, concurrent, but not in sync.
-
-```rust
-// # TODO: show code
-```
-
-With Embassy async framework. Watch primitive from [embassy-sync]("https://"). Asynchronous, start at the same time.
-
-```rust
-// # TODO: show code
-```
-
-Next: Embassy async framework. Single producer, multiple consumer primitive.
-
-```rust
-// # TODO: show code
-```
-
----
-
-### Read sensor
-
-#### Bring up i2c bus
-
-Unclear what the current pattern is. Dependency conflicts. Thrashing happens.
+- Goals:
+  - read input, button
+  - attempt to blink and read button
+  - understand why we want async
 
 Create a handle to the bus that the peripheral can consume.
 
-This works by using an [embassy/embassy-sync]("https://") `NoopRawMutex`.
-
 What is a `NoopRawMutex`? <https://github.com/embassy-rs/embassy/issues/4034#issuecomment-2774951121>
+
+```rust
+#[embassy_executor::task]
+async fn i2c_reader_task(i2c_bus: &'static Mutex<NoopRawMutex, I2c<'static, esp_hal::Async>>) {
+
+```
 
 Should I use <https://github.com/Rahix/shared-bus>? No.
 
@@ -214,34 +134,28 @@ References:
 - <https://github.com/esp-rs/esp-hal/blob/main/esp-hal/src/i2c/master/mod.rs>
 - for the rp2350: <https://github.com/embassy-rs/embassy/blob/main/examples/rp/src/bin/shared_bus.rs>
 
-```rust
-```
+### 3 Async with the Embassy Framework
 
-#### Read sensor data
+- Goals:
+  - embassy
+  - multitasking, blink and read button
 
-Similar sensor, Rust driver. Registers are the same? <https://github.com/marcelbuesing/bme680>
-[BME680 lib fork with small updates for BME688]("https://github.com/ecalifornica/bme68x-rs")
-[BME688 data sheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf)
+### 4 Read Sensors
 
-```rust
-#[embassy_executor::task]
-async fn i2c_reader_task(i2c_bus: &'static Mutex<NoopRawMutex, I2c<'static, esp_hal::Async>>) {
+- Goals:
+  - read sensors
+  - explore ecosystem
 
-```
+### 5 Wifi (IoT)
 
----
-
-### Connect to network
-
-#### Connect to wifi
+- Goals:
+  - get
+    - HTTP
+  - post sensor data
+    - MQTT
+  - Adaftuit IO
 
 <https://github.com/esp-rs/esp-hal/blob/main/examples/src/bin/wifi_embassy_dhcp.rs>
-
-```rust
-
-```
-
-#### Make request
 
 <https://github.com/rust-embedded-community/embedded-nal/tree/master/embedded-nal-async>
 
@@ -251,32 +165,28 @@ See also:
 
 - <https://github.com/ivmarkov/edge-net>
 
-```rust
-```
-
 ---
 
-### Send sensor data to network
+## Beyond Hello
 
-```rust
-```
+### 6 testing
 
----
+goals:
 
-### Bonus: Viewing data using Adafruit IO
+- testing framework
+- hardware in the loop
 
-```rust
-```
+### 7 HAL
 
-// TODO: image showing sensor plot
+goals:
 
----
+- use another board (rp2350)
 
-### Bonus: Record sensor readings to low power memory
+### 8 Etc
 
-RTC RAM powered during low power modes? Yes.
+#### Record sensor readings to low power memory
 
-Write cycles?
+RTC RAM powered during low power modes.
 
 References:
 
@@ -292,12 +202,25 @@ References:
   - <https://github.com/jamesmunns/postcard>
   - <https://github.com/dtolnay/miniserde>
 
-```rust
+---
+
+## How-to
+
+### Pull firmware for later analysis
+
+```bash
+espflash board-info
+espflash read-flash 0x0 0x400000 esp32c6_backup.bin
 
 ```
 
-How much memory do I have?
-How much am I using?
+### Monitor serial without flashing
+
+```bash
+probe-rs attach --chip esp32c6 target/riscv32imac-unknown-none-elf/debug/hello-rust
+```
+
+### Check memory usage
 
 ```bash
 cargo install cargo-binutils
@@ -345,7 +268,7 @@ section                     size         addr
 Total                    3155241
 ```
 
-boot log
+### Read boot log
 
 ```bash
 ESP-ROM:esp32c6-20220919
@@ -379,16 +302,14 @@ I (104) esp_image: segment 2: paddr=0001b93c vaddr=4200b93c size=3eadch (256732)
 I (163) esp_image: segment 3: paddr=0005a420 vaddr=40800014 size=0cb10h ( 51984) load
 I (176) esp_image: segment 4: paddr=00066f38 vaddr=40827338 size=000ech (   236) load
 I (179) boot: Loaded app from partition at offset 0x10000
-
 ```
 
-Create a partition table entry for data?
-Where does it start?
+### Create a partition table entry for data
 
 <https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/partition-tables.html#partition-tables>
 <https://docs.rust-embedded.org/embedonomicon/memory-layout.html>
 
-Link RTC memory?
+### Link RTC memory
 
 ```rust
 #![no_std]
@@ -413,28 +334,6 @@ fn store_sensor_data(value: u32) {
 
 ---
 
-## How-to
-
-### Pull firmware for later analysis
-
-```bash
-espflash board-info
-espflash read-flash 0x0 0x400000 esp32c6_backup.bin
-
-```
-
-### Monitor serial without flashing
-
-```bash
-probe-rs attach --chip esp32c6 target/riscv32imac-unknown-none-elf/debug/hello-rust
-```
-
-### Search Github for recent patterns
-
-Even the vendor or library examples can be out of date
-
----
-
 ## Links
 
 [adafruit board docs](https://learn.adafruit.com/adafruit-esp32-c6-feather)
@@ -447,36 +346,11 @@ vlogs by <https://github.com/therustybits>
 
 - <https://www.youtube.com/watch?v=vT4-bvHCbE0>
 
-[outdated example](https://github.com/esp-rs/no_std-training)
-
 ---
 
-## Terms
+## Glossary
 
-bsc: board support crate
-
-hal: hardware abstraction layer
-
-pac: peripheral access crate
-
-- <https://github.com/esp-rs/esp-pacs>
-
----
-
-## Unsorted links
-
-- <https://github.com/esp-rs/no_std-training/tree/main/intro>
-- <https://docs.esp-rs.org/no_std-training/>
-- Helpful context: <https://nereux.blog/posts/getting-started-esp32-nostd/>
-- PACs: <https://github.com/esp-rs/esp-pacs/tree/main/esp32c6/src>
-- <https://github.com/esp-rs/esp-hal/tree/esp-hal-v1.0.0-beta.0/examples/src/bin>
-- Neopixel example: <https://github.com/esp-rs/esp-hal-community/blob/main/esp-hal-smartled/examples/hello_rgb_async.rs>
-- [rust-embedded/embedded-hal](https://github.com/rust-embedded/embedded-hal)
-- <https://github.com/danclive/esp-examples>
-- <https://github.com/esp-rs/esp-hal>
-- <https://esp32.implrust.com/>
-- esp-rs book: <https://github.com/esp-rs/book>
-- <https://docs.esp-rs.org/book/introduction.html>
-- code coverage with <https://github.com/xd009642/tarpaulin>
-- no_std protobuf with <https://github.com/capnproto/capnproto-rust>
-- <https://github.com/probe-rs/embedded-test>
+- bsc: board support crate
+- hal: hardware abstraction layer
+- pac: peripheral access crate
+  - <https://github.com/esp-rs/esp-pacs>
