@@ -15,22 +15,16 @@ use embassy_sync::blocking_mutex::raw::NoopRawMutex;
 use embassy_sync::mutex::Mutex;
 use embassy_time::{Duration, Timer};
 use embedded_hal_async::i2c::I2c as I2cTrait;
-use embedded_io_async::Write;
+// use embedded_io_async::Write;
 use esp_hal::Async;
 use esp_hal::clock::CpuClock;
 use esp_hal::gpio::{Input, InputConfig, Level, Output, OutputConfig, Pull};
 use esp_hal::i2c::master::{Config as I2cConfig, I2c};
 use esp_hal::rng::Rng;
 use esp_hal::timer::timg::TimerGroup;
-use esp_radio::Controller;
+// use esp_radio::Controller;
 use esp_radio::wifi::{
-    ModeConfig,
-    ScanConfig,
-    WifiController,
-    WifiDevice,
-    WifiEvent,
-    WifiStaState,
-    ClientConfig,
+    ClientConfig, ModeConfig, ScanConfig, WifiController, WifiDevice, WifiEvent, WifiStaState,
 };
 use panic_rtt_target as _;
 use static_cell::StaticCell;
@@ -183,7 +177,9 @@ async fn http_get_task(stack: Stack<'static>) {
 
     info!("waiting for wifi link...");
     loop {
-        if stack.is_link_up() { break; }
+        if stack.is_link_up() {
+            break;
+        }
         Timer::after(Duration::from_millis(500)).await;
     }
     info!("wifi link up");
@@ -279,7 +275,7 @@ async fn main(spawner: Spawner) -> ! {
     // shared bus
     let i2c_bus = I2C_BUS.init(Mutex::new(i2c0));
 
-    let mut i2c_power = Output::new(peripherals.GPIO20, Level::High, OutputConfig::default());
+    let mut _i2c_power = Output::new(peripherals.GPIO20, Level::High, OutputConfig::default());
 
     // delay for power to stabilize
     Timer::after(Duration::from_millis(10)).await;
@@ -297,7 +293,7 @@ async fn main(spawner: Spawner) -> ! {
 
     let wifi_interface = interfaces.sta;
 
-    let rng = Rng::new();  // no args
+    let rng = Rng::new(); // no args
     let seed = (rng.random() as u64) << 32 | rng.random() as u64;
 
     // Initialize network stack
